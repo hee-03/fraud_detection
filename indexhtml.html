@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>신용카드 이상거래 탐지 시스템 | Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <style>
+
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <div class="nav-logo">
+        <span class="dot"></span>
+        <span>Fraud Detection System</span>
+    </div>
+    <div class="nav-links">
+        <a href="#overview">개요</a>
+        <a href="#data">데이터셋</a>
+        <a href="#model">모델</a>
+        <a href="#architecture">아키텍처</a>
+        <a href="#dashboard">대시보드</a>
+        <a href="#setup">실행</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section id="overview">
+    <div class="hero">
+        <div class="hero-left">
+            <div class="hero-label fade-up fade-up-1">Machine Learning Project · 2025</div>
+            <h1 class="fade-up fade-up-2">
+                신용카드<br>
+                <em>이상거래</em><br>
+                탐지 시스템
+            </h1>
+            <p class="hero-desc fade-up fade-up-3">
+                Kaggle Credit Card Fraud Detection 데이터셋을 기반으로 XGBoost 모델을 학습하고,
+                Flask 백엔드와 실시간 대시보드를 구축한 머신러닝 프로젝트입니다.
+                극단적인 클래스 불균형(0.17%)을 내장 파라미터로 처리합니다.
+            </p>
+            <div class="hero-tags fade-up fade-up-3">
+                <span class="tag">XGBoost</span>
+                <span class="tag">Flask</span>
+                <span class="tag">HTML/JS</span>
+                <span class="tag">scikit-learn</span>
+                <span class="tag">SSE Streaming</span>
+                <span class="tag">Kaggle Dataset</span>
+            </div>
+            <div class="hero-meta fade-up fade-up-4">
+                <div class="meta-card accent-card">
+                    <div class="meta-label">ROC-AUC</div>
+                    <div class="meta-value">≥ 0.95</div>
+                    <div class="meta-sub">목표 성능 지표</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">PR-AUC 목표</div>
+                    <div class="meta-value">≥ 0.70</div>
+                    <div class="meta-sub">불균형 데이터 핵심 지표</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">총 거래 건수</div>
+                    <div class="meta-value">284,807</div>
+                    <div class="meta-sub">Kaggle 데이터셋 기준</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">사기 거래 비율</div>
+                    <div class="meta-value">0.17%</div>
+                    <div class="meta-sub">극단적 클래스 불균형</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual fade-up fade-up-3">
+            <div class="pipeline-card">
+                <h3>전체 파이프라인</h3>
+                <div class="pipeline-step">
+                    <div class="step-icon" style="background:#FFF0EE;">📂</div>
+                    <div class="step-info">
+                        <div class="step-name">creditcard.csv</div>
+                        <div class="step-desc">Kaggle 원본 데이터 · 284,807건</div>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+                <div class="pipeline-step">
+                    <div class="step-icon" style="background:#E5F0FF;">⚙️</div>
+                    <div class="step-info">
+                        <div class="step-name">train_model.py</div>
+                        <div class="step-desc">전처리 → XGBoost 학습 → 모델 저장</div>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+                <div class="pipeline-step">
+                    <div class="step-icon" style="background:#EAF5F0;">🧠</div>
+                    <div class="step-info">
+                        <div class="step-name">xgb_fraud_model.pkl</div>
+                        <div class="step-desc">학습된 XGBoost 모델 (joblib 직렬화)</div>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+                <div class="pipeline-step">
+                    <div class="step-icon" style="background:#FFFAEE;">🚀</div>
+                    <div class="step-info">
+                        <div class="step-name">app.py (Flask)</div>
+                        <div class="step-desc">REST API + SSE 실시간 스트리밍</div>
+                    </div>
+                </div>
+                <div class="pipeline-arrow">↓</div>
+                <div class="pipeline-step">
+                    <div class="step-icon" style="background:#F0EEFF;">📊</div>
+                    <div class="step-info">
+                        <div class="step-name">dashboard.html</div>
+                        <div class="step-desc">실시간 차트 · 지표 카드 · 거래 로그</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- PROBLEM -->
+<section id="data" class="section">
+    <div class="section-header">
+        <span class="section-num">01</span>
+        <h2 class="section-title">핵심 문제와 데이터셋</h2>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="problem-grid">
+        <div class="problem-card red">
+            <div class="big-number accent">0.17%</div>
+            <h4>극단적인 클래스 불균형</h4>
+            <p>전체 284,807건 중 사기 거래는 492건에 불과합니다. 단순 정확도(Accuracy) 기반 평가는 의미가 없으며, Recall과 PR-AUC 중심의 평가 전략이 필수적입니다.</p>
+        </div>
+        <div class="problem-card blue">
+            <div class="big-number blue">V1~V28</div>
+            <h4>PCA 익명화 피처</h4>
+            <p>28개 피처는 PCA 변환으로 익명화되어 원본 의미가 비공개입니다. 머신러닝은 피처의 '의미'가 아닌 '패턴'을 학습하므로, 오히려 ML 입력으로 더 적합한 형태가 됩니다.</p>
+        </div>
+        <div class="problem-card yellow">
+            <h4>🔁 비대칭 오류 비용</h4>
+            <p><strong>FN(미탐)</strong>: 사기 거래를 정상으로 판단 → 금전 피해 발생, 회수 불가<br><strong>FP(오탐)</strong>: 정상 거래를 사기로 판단 → 고객 불편, 전화 한 통으로 해결 가능</p>
+        </div>
+        <div class="problem-card green">
+            <h4>📐 전처리 전략</h4>
+            <p>Amount와 Time을 별도 스케일러로 분리하여 scaler 혼용 오류를 방지합니다. Stratified split으로 0.17% 사기 비율을 학습/테스트에 균등 유지합니다.</p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <strong>왜 V1~V28을 몰라도 학습이 가능한가?</strong> — 모델은 Class=1(사기)인 행들의 숫자 조합에서 통계적 패턴을 발견합니다.
+        "V14 ≤ -5일 때 사기가 자주 발생한다"는 상관관계는 V14의 실제 의미를 몰라도 학습됩니다.
+        PCA 변환은 다중공선성을 제거하고 분산 기준으로 정보를 압축하므로 오히려 ML 입력으로 더 적합합니다.
+    </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- MODEL -->
+<section id="model" class="section">
+    <div class="section-header">
+        <span class="section-num">02</span>
+        <h2 class="section-title">모델 선정 과정</h2>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="models-grid">
+        <div class="model-card">
+            <div class="model-name">Logistic Regression</div>
+            <div class="model-auc ok">~0.97</div>
+            <div class="model-auc-label">ROC-AUC</div>
+            <div class="model-tags">
+                <span class="model-tag pro">빠른 학습</span>
+                <span class="model-tag pro">해석 용이</span>
+                <span class="model-tag con">비선형 불가</span>
+                <span class="model-tag con">불균형 취약</span>
+            </div>
+        </div>
+        <div class="model-card">
+            <div class="model-name">Decision Tree</div>
+            <div class="model-auc bad">~0.85</div>
+            <div class="model-auc-label">ROC-AUC</div>
+            <div class="model-tags">
+                <span class="model-tag pro">해석 쉬움</span>
+                <span class="model-tag con">과적합 강함</span>
+                <span class="model-tag con">노이즈 민감</span>
+            </div>
+        </div>
+        <div class="model-card">
+            <div class="model-name">Random Forest</div>
+            <div class="model-auc good">~0.95</div>
+            <div class="model-auc-label">ROC-AUC</div>
+            <div class="model-tags">
+                <span class="model-tag pro">앙상블 안정적</span>
+                <span class="model-tag pro">병렬 처리</span>
+                <span class="model-tag con">SMOTE 필요</span>
+            </div>
+        </div>
+        <div class="model-card winner">
+            <div class="model-badge">✓ 최종 선택</div>
+            <div class="model-name">XGBoost</div>
+            <div class="model-auc good">~0.98</div>
+            <div class="model-auc-label">ROC-AUC</div>
+            <div class="model-tags">
+                <span class="model-tag pro">불균형 내장처리</span>
+                <span class="model-tag pro">희귀패턴 집중</span>
+                <span class="model-tag pro">PR-AUC 최적화</span>
+            </div>
+        </div>
+    </div>
+
+    <table class="compare-table">
+        <thead>
+        <tr>
+            <th>비교 항목</th>
+            <th>Random Forest</th>
+            <th class="xgb-col-head">XGBoost ✓</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>학습 방식</td>
+            <td>병렬(Bagging) — 독립 학습 후 다수결</td>
+            <td class="xgb-col">순차(Boosting) — 오차를 다음 트리가 보완</td>
+        </tr>
+        <tr>
+            <td>불균형 데이터 처리</td>
+            <td>별도 전처리 필요 (SMOTE 등)</td>
+            <td class="xgb-col"><span class="win-chip">내장 파라미터</span> scale_pos_weight ≈ 578</td>
+        </tr>
+        <tr>
+            <td>ROC-AUC</td>
+            <td>~0.95</td>
+            <td class="xgb-col"><span class="win-chip">~0.98</span></td>
+        </tr>
+        <tr>
+            <td>희귀 패턴 학습</td>
+            <td>보통</td>
+            <td class="xgb-col"><span class="win-chip">우수</span> — 오차 집중 학습</td>
+        </tr>
+        <tr>
+            <td>PR-AUC 최적화</td>
+            <td>간접적</td>
+            <td class="xgb-col"><span class="win-chip">직접 최적화</span> eval_metric="aucpr"</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 36px;">
+        <div class="section-header">
+            <span class="section-num">02-1</span>
+            <h2 class="section-title" style="font-size:20px;">하이퍼파라미터 명세</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="params-grid">
+            <div class="param-card">
+                <div class="param-name">n_estimators</div>
+                <div class="param-value">300</div>
+                <div class="param-desc">early_stopping으로 실제 사용 트리 수 결정</div>
+            </div>
+            <div class="param-card">
+                <div class="param-name">max_depth</div>
+                <div class="param-value">6</div>
+                <div class="param-desc">트리 최대 깊이</div>
+            </div>
+            <div class="param-card">
+                <div class="param-name">learning_rate</div>
+                <div class="param-value">0.05</div>
+                <div class="param-desc">각 트리의 기여 가중치</div>
+            </div>
+            <div class="param-card">
+                <div class="param-name">subsample</div>
+                <div class="param-value">0.8</div>
+                <div class="param-desc">각 트리 학습 시 사용할 샘플 비율</div>
+            </div>
+            <div class="param-card">
+                <div class="param-name">scale_pos_weight</div>
+                <div class="param-value" style="color:var(--accent);">≈ 578</div>
+                <div class="param-desc">정상 수 / 사기 수 — 불균형 보정 핵심</div>
+            </div>
+            <div class="param-card">
+                <div class="param-name">early_stopping_rounds</div>
+                <div class="param-value">20</div>
+                <div class="param-desc">PR-AUC 개선 없으면 조기 중단, 과적합 방지</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="metrics-grid" style="margin-top:24px;">
+        <div class="metric-card">
+            <div class="metric-name">ROC-AUC</div>
+            <div class="metric-value">≥ 0.95</div>
+            <div class="metric-desc">전체 분류 성능 기준</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-name">PR-AUC</div>
+            <div class="metric-value">≥ 0.70</div>
+            <div class="metric-desc">불균형 데이터 핵심 지표</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-name">Recall</div>
+            <div class="metric-value">최대화</div>
+            <div class="metric-desc">FN(미탐) 최소화 — 사기를 놓치지 않음</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-name">FN 비용</div>
+            <div class="metric-value" style="font-size:20px;">FP 이상</div>
+            <div class="metric-desc">사기 미탐지 금전 피해 > 정상 차단 불편</div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- ARCHITECTURE -->
+<section id="architecture" class="section">
+    <div class="section-header">
+        <span class="section-num">03</span>
+        <h2 class="section-title">시스템 아키텍처</h2>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="arch-flow">
+        <div class="arch-stage">
+            <div class="arch-stage-label">학습 단계</div>
+            <div class="arch-stage-name">🗂 Data Prep</div>
+            <ul class="arch-stage-items">
+                <li>creditcard.csv 로드</li>
+                <li>Amount/Time 스케일러 분리</li>
+                <li>Stratified 80/20 분할</li>
+            </ul>
+        </div>
+        <div class="arch-stage">
+            <div class="arch-stage-label">모델 학습</div>
+            <div class="arch-stage-name">🧠 XGBoost</div>
+            <ul class="arch-stage-items">
+                <li>scale_pos_weight=578</li>
+                <li>eval_metric=aucpr</li>
+                <li>early_stopping=20</li>
+            </ul>
+        </div>
+        <div class="arch-stage">
+            <div class="arch-stage-label">백엔드 서빙</div>
+            <div class="arch-stage-name">🚀 Flask API</div>
+            <ul class="arch-stage-items">
+                <li>8개 REST 엔드포인트</li>
+                <li>SSE 실시간 스트리밍</li>
+                <li>Threshold 실시간 조정</li>
+            </ul>
+        </div>
+        <div class="arch-stage">
+            <div class="arch-stage-label">프론트엔드</div>
+            <div class="arch-stage-name">📊 Dashboard</div>
+            <ul class="arch-stage-items">
+                <li>API 폴링 (0.5s 주기)</li>
+                <li>실시간 차트 업데이트</li>
+                <li>거래 로그 테이블</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="endpoints-list">
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/metrics</span>
+            <span class="endpoint-desc">모델 성능 지표 반환 — ROC-AUC, PR-AUC, 혼동행렬</span>
+        </div>
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/status</span>
+            <span class="endpoint-desc">현재 스트리밍 상태 — 처리 건수, 시간대별/금액대별 집계</span>
+        </div>
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/stream/start</span>
+            <span class="endpoint-desc">스트리밍 시작 — 임계값(threshold) 파라미터 수신</span>
+        </div>
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/stream/stop</span>
+            <span class="endpoint-desc">스트리밍 중지</span>
+        </div>
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/predict</span>
+            <span class="endpoint-desc">단일 거래 예측 — JSON 거래 데이터 → 사기 확률 반환</span>
+        </div>
+        <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="endpoint-path">/api/threshold</span>
+            <span class="endpoint-desc">판정 임계값 실시간 변경 — 0.01 ~ 0.99 범위</span>
+        </div>
+        <div class="endpoint">
+            <span class="method get">GET</span>
+            <span class="endpoint-path">/api/events</span>
+            <span class="endpoint-desc">SSE 실시간 이벤트 스트림 — 거래 결과를 대시보드로 Push</span>
+        </div>
+    </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="section">
+    <div class="section-header">
+        <span class="section-num">04</span>
+        <h2 class="section-title">대시보드 기능</h2>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="dash-grid">
+        <div class="dash-card">
+            <h4>📊 지표 카드</h4>
+            <div class="dash-items">
+                <div class="dash-item">
+                    <div class="dash-item-icon">🔢</div>
+                    <div class="dash-item-name">처리된 거래</div>
+                    <div class="dash-item-desc">현재까지 처리 총 건수</div>
+                </div>
+                <div class="dash-item">
+                    <div class="dash-item-icon">🚨</div>
+                    <div class="dash-item-name">이상거래 탐지</div>
+                    <div class="dash-item-desc">탐지 건수 및 전체 대비 비율(%)</div>
+                </div>
+                <div class="dash-item">
+                    <div class="dash-item-icon">✅</div>
+                    <div class="dash-item-name">정상 거래</div>
+                    <div class="dash-item-desc">정상 판정 건수 및 비율</div>
+                </div>
+                <div class="dash-item">
+                    <div class="dash-item-icon">📈</div>
+                    <div class="dash-item-name">모델 ROC-AUC / PR-AUC</div>
+                    <div class="dash-item-desc">학습된 모델의 성능 지표</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dash-card">
+            <h4>📉 차트 구성</h4>
+            <div class="dash-items">
+                <div class="dash-item">
+                    <div class="dash-item-icon">📈</div>
+                    <div class="dash-item-name">시간대별 추이 (Line Chart)</div>
+                    <div class="dash-item-desc">24시간대별 이상거래 누적 건수</div>
+                </div>
+                <div class="dash-item">
+                    <div class="dash-item-icon">📊</div>
+                    <div class="dash-item-name">금액대 분포 (Bar Chart)</div>
+                    <div class="dash-item-desc">$0-50 / $50-200 / $200-500 / $1000+ 구간별</div>
+                </div>
+                <div class="dash-item">
+                    <div class="dash-item-icon">📋</div>
+                    <div class="dash-item-name">실시간 거래 로그 테이블</div>
+                    <div class="dash-item-desc">최신 거래의 금액, 확률, 판정 결과</div>
+                </div>
+            </div>
+
+            <div style="margin-top:12px; padding: 10px 12px; background: var(--bg); border-radius: var(--r-sm); font-size:12px; color:var(--text2); border: 1px solid var(--border);">
+                💡 <strong>도넛 차트 → Bar Chart 교체 이유:</strong> 정상/이상 비율은 지표 카드에서 이미 수치로 표시되어 중복이었습니다.
+                금액대 분포로 교체하여 "어느 금액대에서 사기가 주로 발생하는가"라는 더 실질적인 인사이트를 제공합니다.
+            </div>
+        </div>
+    </div>
+
+    <div class="threshold-card">
+        <h4>🎚 판정 임계값(Threshold) 슬라이더</h4>
+        <p style="font-size:13px; color:var(--text2); margin-bottom:16px;">기본값 0.5 · 슬라이더로 0.1 ~ 0.9 범위에서 실시간 조정 가능합니다.</p>
+        <div class="threshold-demo">
+            <span style="font-size:12px; color:var(--text3); font-family:var(--font-mono);">0.1</span>
+            <div class="slider-track">
+                <div class="slider-thumb"></div>
+            </div>
+            <span style="font-size:12px; color:var(--text3); font-family:var(--font-mono);">0.9</span>
+        </div>
+        <div class="threshold-effects">
+            <div class="threshold-effect low">
+                <strong>🔴 임계값 낮춤 (예: 0.3)</strong>
+                더 많은 거래를 이상으로 분류<br>Recall ↑ / Precision ↓
+            </div>
+            <div class="threshold-effect mid">
+                <strong>🟡 기본값 (0.5)</strong>
+                균형점. 실제 운영에서는 더 낮게 설정 권장
+            </div>
+            <div class="threshold-effect high">
+                <strong>🟢 임계값 높임 (예: 0.7)</strong>
+                확실한 경우만 이상으로 분류<br>Precision ↑ / Recall ↓
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- ISSUES -->
+<section class="section">
+    <div class="section-header">
+        <span class="section-num">05</span>
+        <h2 class="section-title">개발 중 주요 이슈 & 해결</h2>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="issues-list">
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-icon">❌</div>
+                <div class="issue-title">FileNotFoundError: xgb_fraud_model.pkl</div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h5>원인</h5>
+                    <p>app.py 실행 전 train_model.py 미실행, 또는 다른 폴더에서 실행하여 파일 경로 불일치 발생</p>
+                </div>
+                <div class="issue-section">
+                    <h5>해결</h5>
+                    <p>절대경로 기반 처리 및 필수 파일 존재 여부 사전 점검 로직 추가</p>
+                    <div class="code-snippet">BASE_DIR = os.path.dirname(os.path.abspath(__file__))</div>
+                </div>
+            </div>
+        </div>
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-icon">💸</div>
+                <div class="issue-title">Amount $undefined 표시 문제</div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h5>원인</h5>
+                    <p>scaler 하나로 Amount와 Time을 순차 fit하여 마지막 fit(Time)이 scaler.pkl에 저장됨. Amount 역변환 시 잘못된 scaler 참조</p>
+                </div>
+                <div class="issue-section">
+                    <h5>해결</h5>
+                    <p>amount_scaler / time_scaler 분리 저장. test_data.csv에 원본 Amount 컬럼을 직접 포함하여 역변환 불필요하도록 구조 단순화</p>
+                </div>
+            </div>
+        </div>
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-icon">🔄</div>
+                <div class="issue-title">도넛 차트 중복 정보 문제</div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h5>원인</h5>
+                    <p>정상/이상 비율 도넛 차트가 이미 지표 카드에 수치로 표시되어 중복이었음</p>
+                </div>
+                <div class="issue-section">
+                    <h5>해결</h5>
+                    <p>금액대 분포 Bar Chart로 교체하여 더 유의미한 인사이트 제공. "어느 금액대에서 사기가 주로 발생하는가" 파악 가능</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- SETUP -->
+<section id="setup" class="section">
+    <div class="section-header">
+        <span class="section-num">06</span>
+        <h2 class="section-title">실행 가이드</h2>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="setup-steps">
+        <div class="setup-step">
+            <div class="step-num">1</div>
+            <div class="setup-step-content">
+                <h5>패키지 설치</h5>
+                <p>프로젝트에 필요한 Python 패키지를 설치합니다.</p>
+                <div class="code-block">pip install xgboost scikit-learn pandas numpy joblib flask flask-cors</div>
+            </div>
+        </div>
+        <div class="setup-step">
+            <div class="step-num">2</div>
+            <div class="setup-step-content">
+                <h5>데이터 준비</h5>
+                <p>Kaggle에서 creditcard.csv를 다운로드하여 backend/ 폴더에 위치시킵니다.</p>
+                <div class="code-block"><span class="comment"># Kaggle에서 다운로드</span>
+                    <span class="str">mlg-ulb/creditcardfraud</span> → backend/creditcard.csv</div>
+            </div>
+        </div>
+        <div class="setup-step">
+            <div class="step-num">3</div>
+            <div class="setup-step-content">
+                <h5>모델 학습</h5>
+                <p>학습 스크립트 실행. 약 1~2분 소요되며 모델 및 테스트 데이터가 생성됩니다.</p>
+                <div class="code-block"><span class="cmd">python</span> train_model.py
+                    <span class="comment"># → xgb_fraud_model.pkl, amount_scaler.pkl, test_data.csv 생성</span></div>
+            </div>
+        </div>
+        <div class="setup-step">
+            <div class="step-num">4</div>
+            <div class="setup-step-content">
+                <h5>Flask 서버 실행</h5>
+                <p>백엔드 API 서버를 구동합니다.</p>
+                <div class="code-block"><span class="cmd">python</span> app.py
+                    <span class="comment"># → http://localhost:5000 에서 서버 구동</span></div>
+            </div>
+        </div>
+        <div class="setup-step">
+            <div class="step-num">5</div>
+            <div class="setup-step-content">
+                <h5>대시보드 열기</h5>
+                <p>dashboard.html을 브라우저로 열고 스트리밍 시작 버튼을 클릭합니다.</p>
+                <div class="code-block"><span class="comment"># 브라우저에서 dashboard.html 열기</span>
+                    <span class="comment"># → 스트리밍 시작 클릭 → 실시간 이상거래 탐지 시작</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"><hr></div>
+
+<!-- FUTURE -->
+<section class="section">
+    <div class="section-header">
+        <span class="section-num">07</span>
+        <h2 class="section-title">향후 고도화 방향</h2>
+        <div class="section-line"></div>
+    </div>
+    <div class="future-grid">
+        <div class="future-card">
+            <div class="future-icon">🔬</div>
+            <div class="future-title">샘플링 고도화</div>
+            <div class="future-desc">SMOTE 또는 언더샘플링 추가 적용을 통한 성능 개선</div>
+        </div>
+        <div class="future-card">
+            <div class="future-icon">📡</div>
+            <div class="future-title">실거래 데이터 연동</div>
+            <div class="future-desc">실제 카드사 PCA 변환 파이프라인 연동 시 실거래 데이터 적용</div>
+        </div>
+        <div class="future-card">
+            <div class="future-icon">🔄</div>
+            <div class="future-title">드리프트 감지</div>
+            <div class="future-desc">모델 재학습 주기 설정 및 데이터 드리프트 감지 기능</div>
+        </div>
+        <div class="future-card">
+            <div class="future-icon">🗄️</div>
+            <div class="future-title">관리자 페이지</div>
+            <div class="future-desc">임계값 이력 관리, 탐지 이력 DB 저장 기능</div>
+        </div>
+        <div class="future-card">
+            <div class="future-icon">🐳</div>
+            <div class="future-title">Docker 배포</div>
+            <div class="future-desc">Docker 기반 배포 패키징 및 .env 환경설정 가이드</div>
+        </div>
+        <div class="future-card">
+            <div class="future-icon">🔐</div>
+            <div class="future-title">사용자 인증</div>
+            <div class="future-desc">사용자 인증 및 권한 관리 기능, 데이터 직접 입력 판별 기능</div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-left">
+        <strong>💳 신용카드 이상거래 탐지 시스템</strong><br>
+        <span>Machine Learning Portfolio · v1.0 · 2025</span>
+    </div>
+    <div class="footer-right">
+        <span class="footer-badge">XGBoost</span>
+        <span class="footer-badge">Flask</span>
+        <span class="footer-badge">Kaggle Dataset</span>
+    </div>
+</footer>
+
+</body>
+</html>
