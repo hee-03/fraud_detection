@@ -54,7 +54,6 @@
                     <span class="tag">Flask</span>
                     <span class="tag">HTML/JS</span>
                     <span class="tag">scikit-learn</span>
-                    <span class="tag">SSE Streaming</span>
                     <span class="tag">Kaggle Dataset</span>
                 </div>
             </div>
@@ -84,6 +83,14 @@
                 <div class="info-item">
                     <span class="info-icon">👤</span>
                     <span class="info-text">1인 개인 프로젝트</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">💻</span>
+                    <span class="info-text">AI/ML</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-icon">🎯</span>
+                    <span class="info-text">대시보드·AI·ML 총괄 </span>
                 </div>
             </div>
         </div>
@@ -567,7 +574,7 @@
 <section class="section">
     <div class="section-header">
         <span class="section-num">05</span>
-        <h2 class="section-title">개발 중 주요 이슈 & 해결</h2>
+        <h2 class="section-title">개발 중 주요 이슈 & 해결 — 트러블슈팅</h2>
         <div class="section-line"></div>
     </div>
 
@@ -587,8 +594,13 @@
                     <p>절대경로 기반 처리 및 필수 파일 존재 여부 사전 점검 로직 추가</p>
                     <div class="code-snippet">BASE_DIR = os.path.dirname(os.path.abspath(__file__))</div>
                 </div>
+                <div class="issue-section">
+                    <h5>성과</h5>
+                    <div class="issue-outcome">✅ 실행 환경에 관계없이 모델 파일 로드 안정화</div>
+                </div>
             </div>
         </div>
+
         <div class="issue-card">
             <div class="issue-header">
                 <div class="issue-icon">💸</div>
@@ -602,6 +614,76 @@
                 <div class="issue-section">
                     <h5>해결</h5>
                     <p>amount_scaler / time_scaler 분리 저장. test_data.csv에 원본 Amount 컬럼을 직접 포함하여 역변환 불필요하도록 구조 단순화</p>
+                </div>
+                <div class="issue-section">
+                    <h5>성과</h5>
+                    <div class="issue-outcome">✅ 대시보드에 실제 거래 금액이 정확하게 표시됨</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-icon">📁</div>
+                <div class="issue-title">파일 업/다운로드 경로 불일치</div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h5>원인</h5>
+                    <p>파일 저장 경로를 절대 경로로 하드코딩하여 팀원마다 로컬 경로가 달라 파일 기능이 정상 작동하지 않음</p>
+                </div>
+                <div class="issue-section">
+                    <h5>해결</h5>
+                    <p>프로젝트 루트 기준 상대 경로로 전면 변경</p>
+                    <div class="code-snippet">UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static/uploads')</div>
+                </div>
+                <div class="issue-section">
+                    <h5>성과</h5>
+                    <div class="issue-outcome">✅ 모든 개발 환경에서 파일 업로드·다운로드 정상 동작</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-icon">🔑</div>
+                <div class="issue-title">은행코드 PK 중복 제약으로 동일 은행 다중 계정 생성 불가</div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h5>원인</h5>
+                    <p>bank_code 컬럼에 PK 제약 설정으로 같은 은행 소속의 여러 직원 계정을 만들 수 없음</p>
+                </div>
+                <div class="issue-section">
+                    <h5>해결</h5>
+                    <p>bank_code 컬럼의 PK 제약 해제, 복합 키 또는 별도 member_id PK로 DB 재설계</p>
+                </div>
+                <div class="issue-section">
+                    <h5>성과</h5>
+                    <div class="issue-outcome">✅ 동일 은행 소속 복수 계정 정상 등록 가능</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-icon">🔓</div>
+                <div class="issue-title">로그아웃 후 관리자 대시보드 재진입 가능 (세션 미삭제)</div>
+            </div>
+            <div class="issue-body">
+                <div class="issue-section">
+                    <h5>원인</h5>
+                    <p>로그아웃 시 세션이 완전히 삭제되지 않아 URL 직접 접근으로 관리자 페이지에 재진입 가능</p>
+                </div>
+                <div class="issue-section">
+                    <h5>해결</h5>
+                    <p>로그아웃 라우트에서 session.clear() 명시적 호출 및 모든 보호 라우트에 @login_required 데코레이터 적용</p>
+                    <div class="code-snippet">session.clear()  # 로그아웃 라우트
+                        @login_required  # 모든 보호 라우트</div>
+                </div>
+                <div class="issue-section">
+                    <h5>성과</h5>
+                    <div class="issue-outcome">✅ 로그아웃 후 보호 페이지 접근 시 로그인 페이지로 강제 리다이렉트</div>
                 </div>
             </div>
         </div>
